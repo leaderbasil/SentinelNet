@@ -1,0 +1,15 @@
+{
+  "generated": "2026-10-22T17:19:43",
+  "files": [
+    {
+      "file": "C:\\Users\\LENOVO\\Desktop\\scopy scan\\logs\\alerts_20261022_171942.jsonl",
+      "sha256": "dea9fdb05ab1dac24426dcff82e23c8e57d2367ec1925eb49ca274d47779f141",
+      "bytes": 935
+    },
+    {
+      "file": "C:\\Users\\LENOVO\\Desktop\\scopy scan\\logs\\evidence_20261022_171942.pcap",
+      "sha256": "e82b016bcaacc1175b6e24b841ae6bc529600aa539b45bb3bbfdba35f22dc61e",
+      "bytes": 240
+    }
+  ]
+}
