@@ -1,100 +1,101 @@
-# NetGuard-IDS — كاشف الهجمات الشبكية باستخدام Scapy
+# NetGuard-IDS — Network Attack Detector Using Scapy
 
-أداة **دفاعية**: تكشف هجمات الشبكة وتبنّه بصوتها وتحفظ الأدلة، ولا تنفّذ أي هجوم.
+A **defensive** tool: detects network attacks, raises alerts, and keeps evidence — it does **not** perform any attack.
 
-| الهجوم | كيف تنبّهك الأداة |
+| Attack | How the tool alerts you |
 |---|---|
-| MITM عبر ARP Spoofing | حديث تعيين IP↔MAC (خصوصًا البوابة) / ردود بلا طلب |
-| Deauth (فصل إجباري) | عدد إطارات فصل مرتفع خلال نافذة زمنية قصيرة |
-| Evil Twin | BSSID غير معرف يعلن SSID مشروعًا (بخط أساس) أو نفس SSID من BSSID مختلف |
-| مخاطر Sniffing | مرور HTTP غير مشفر قابل للاعتراض (إرشاد) |
-| محاولة وصول | تنبيه HTTP غير مشفر أو جدار الناري عند الحظر (منطق تمارين المعلم) |
+| MITM via ARP Spoofing | IP↔MAC mapping change (especially the gateway) / replies nobody asked for |
+| Deauth (forced disconnection) | High rate of deauth frames within a short time window |
+| Evil Twin | Unapproved BSSID advertising a legitimate SSID (baseline check), or the same SSID from a different BSSID |
+| Sniffing risks | Interceptable unencrypted HTTP traffic (advisory) |
+| Access attempts | Unencrypted HTTP alert or firewall blocking (per supervisor's exercise logic) |
 
 ---
 
-## 1) التثبيت
+## 1) Installation
 
 ```powershell
 cd "Desktop\scopy scan"
 python -m pip install -r requirements.txt   # scapy, colorama, pyyaml, pytest
-python main.py selftest                     # يجب: PASS لكل الكواشف الستة
+python main.py selftest                     # expect: PASS for all six detectors
 ```
 
-## 2) التشغيل
+## 2) Running
 
-### أ) محاكاة آمنة (العرض — لا حزم على الشبكة)
+### a) Safe simulation (for the demo — zero packets on the network)
 ```powershell
 python main.py simulate
 ```
 
-### ب) قراءة ملفات PCAP (بدون صلاحيات ما يليها التقاط)
+### b) Reading PCAP files (no privileges, same engine as live capture)
 ```powershell
-python tests/gen_test_pcaps.py                       # توليد مختبرات اصطناعية
+python tests/gen_test_pcaps.py                       # generate synthetic test files
 python -m detector --pcap tests/pcaps/arp_scan.pcap  --mode all
 python -m detector --pcap tests/pcaps/wifi_scan.pcap --mode all
 ```
 
-### ج) الالتقاط الحقيقي (يحتاج Npcap على Windows + صلاحيات مسؤول)
+### c) Live capture (needs Npcap on Windows + administrator privileges)
 ```powershell
 python main.py list-ifaces
-python -m detector --iface "Wi-Fi" --mode arp         # MITM عبر ARP
-python -m detector --iface <iface> --mode wifi        # يحتاج وضع المراقبة (Linux)
+python -m detector --iface "Wi-Fi" --mode arp         # MITM via ARP
+python -m detector --iface <iface> --mode wifi        # needs monitor mode (Linux)
 python -m detector --iface "Ethernet" --mode all --log-dir ./logs
 ```
 
-## 3) البلاغات والأدلة
-- `logs/alerts_*.jsonl` — كل تنبيه (زمن، النوع، الشدة، التفاصيل).
-- `logs/evidence_*.pcap` — الحزم المشبوهة (فتحها في Wireshark).
-- `logs/manifest_*.json` — بصمة SHA-256 لكل ملف أدلة، وتتحقق منها:
+## 3) Alerts and evidence
+- `logs/alerts_*.jsonl` — every alert (time, type, severity, details).
+- `logs/evidence_*.pcap` — the suspicious packets (open in Wireshark).
+- `logs/manifest_*.json` — SHA-256 fingerprint of each evidence file; verify with:
 ```powershell
 python tools/verify.py logs
 ```
 
-## 4) الإعدادات (config.yaml)
-عتبات كل كاشف (فيض ARP، نافذة Deauth، طاقة الشظر سياز)... لا قيم ثابتة داخل الكود. مفاتيح مهمة:
-- `arp.whitelist`: روابط شرعية تُثبّت من الدخول (مثال: البوابة).
-- `evil_twin.allowed_aps_file`: خط أساس نقاط الوصول الشرعية `lab/allowed_aps.yaml`.
-- `guard`: ضوابط السلامة للمختبر (قائمة واجهات، حد الحزم 50، فحص الانترنت).
+## 4) Configuration (config.yaml)
+Each detector's thresholds (ARP flood, Deauth window, etc.) — no hardcoded values in code. Key settings:
+- `arp.whitelist`: legitimate bindings pinned at startup (e.g. the gateway).
+- `evil_twin.allowed_aps_file`: baseline of legitimate APs, `lab/allowed_aps.yaml`.
+- `guard`: lab safety controls (interface list, 50-packet cap, internet check).
 
-## 5) الاختبارات (pytest — بلا هجمات حية)
+## 5) Tests (pytest — no live attacks)
 ```powershell
 python -m pytest tests/test_arp.py tests/test_deauth.py tests/test_eviltwin.py -q
-python -m pytest -q        # أو كل شيء
+python -m pytest -q        # or everything
 ```
-لكل كاشف: حالة تنبيه + حالة سليم ينبغي الصمت (12 اختبارًا الآن، كلها ناجحة).
+Each detector has: an alert case + a benign case that must stay silent (12 tests currently, all passing).
 
-## 6) مختبر الحرم الجامعي (في VM — Linux)
-راجع `lab/README.md`: الحالتان A/B (`setup_baseline.sh` / `setup_hardened.sh`)،
-إعدادات hostapd (WPA3-SAE + PMF)، قواعد nftables، ومحاكاها اللاسلكي
-(mac80211_hwsim) — مع خطة PCAP البديلة (الأسهل لتثبيت اكتشفها في تقارير).
+## 6) Campus lab (in a VM — Linux)
+See `lab/README.md`: the two cases A/B (`setup_baseline.sh` / `setup_hardened.sh`),
+hostapd configs (WPA3-SAE + PMF), nftables rules, and mac80211_hwsim wireless
+simulation — with the PCAP-replay alternative plan (easier, for demonstrating detections in reports).
 
-## 7) الإطار القانوني
-أداة مراقب فقط. اختبار على مختبرك أو بإذن مكتوب. سكربت النيافة الفعلية
-(`tests/lab_spoof_sim.py`) مقفل بضوابط السلامة لاحظ — ولا يعمل على شبكة فارغ
-منه بإنترنت أو واجهة غير معلحة في `guard.allowed_interfaces`.
+## 7) Legal framework
+Monitoring tool only. Test on your own lab or with written permission. The actual
+spoofing script (`tests/lab_spoof_sim.py`) is locked behind safety controls — it
+refuses to run on a network with internet access or an interface not listed in
+`guard.allowed_interfaces`.
 
-## 8) الإفصاح عن استخدام الذكاء الاصطناعي
-استُعين بمساعد ذكاء اصطناعي في كتابة الكود والوثائق المستخدمة في هذا المستودع
-(كشفت به وفقًا لإلزام قسم 8 من الوثيقة الرسمية). الكون: الدفاعي والاختبارات والضوابط
-هي ما نُنفذ، وقد كذلك تحcrafted من المشرف عبر اختبارات إعادة الضب مع اللجنة.
+## 8) AI usage disclosure
+An AI assistant was used to help write the code and documentation in this
+repository (disclosed per section 8 of the official document). Final review,
+verification, and execution were done by the student.
 
-## 9) هيكل المستودع
+## 9) Repository structure
 ```
-main.py                        نقطة التشغيل (sniff/simulate/selftest/list-ifaces)
+main.py                        entry point (sniff/simulate/selftest/list-ifaces)
 detector/__main__.py           python -m detector --iface/--pcap
-config.yaml                    العتبات والقوائم (بدون قيم داخل الكود)
+config.yaml                    thresholds and lists (no hardcoded values)
 ids_tool/
-  sniffer.py                   المحرك (التقاط حي أو تشغيل PCAP)
-  alerts.py                    التنبيهات (شاشة + JSONL)
-  evidence.py                  الأدلة + SHA-256
-  guard.py                     ضوابط السلامة (القسم 8)
-  simulator.py                 محاكاة استعرضية للعرض
-  detectors/arp_spoofing.py    MITM عبر ARP (تغيير تعيين، فيض، ردود بلا طلب)
-  detectors/deauth.py          الفصل الإجباري (لكل زوج + رمز السبب)
-  detectors/evil_twin.py       نقطة متزداز (خط أساس + RSN + قناة/تشفير)
-  detectors/...                 ...
-tests/                         pytest (12) + pert pcap websites
-tools/verify.py                تحقق سلامة الأدلة SHA-256
-lab/                           قوالب الحالتين A/B + hostapd + nftables + خط الأساس
-docs/                          التقرير: نظري + جدول النتائج + خطة
+  sniffer.py                   engine (live capture or PCAP replay)
+  alerts.py                    alerts (console + JSONL)
+  evidence.py                  evidence + SHA-256
+  guard.py                     safety controls (section 8)
+  simulator.py                 demo simulation
+  detectors/arp_spoofing.py    MITM via ARP (mapping change, flood, unsolicited replies)
+  detectors/deauth.py          forced disconnection (per station pair + reason code)
+  detectors/evil_twin.py       rogue AP (baseline + RSN + channel/encryption)
+  detectors/...                ...
+tests/                         pytest (12) + test PCAP files
+tools/verify.py                evidence integrity check (SHA-256)
+lab/                           A/B case templates + hostapd + nftables + baseline
+docs/                          report: theory + results table + plan
 ```
