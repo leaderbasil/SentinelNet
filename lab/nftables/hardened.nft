@@ -1,0 +1,14 @@
+#!/usr/bin/env nft -f
+# قاعدة الجدار الناري للحالة B: رفض افتراضي مع السماح اللازم فقط
+table inet filter {
+  chain forward {
+    type filter hook forward priority 0; policy drop;
+    ct state established,related accept
+    # الطلبة -> خادم الإدارة: TLS فقط
+    ip saddr 10.20.0.0/24 ip daddr 10.10.0.0/10 tcp dport 443 accept
+    # الضيوف: لا شيء يمر إلى منطقة الإدارة أو الطلبة
+    ip saddr 10.30.0.0/24 counter drop comment "guests are isolated"
+    # سجّل المرفوض لتتبعه في تقارير المشروع
+    counter log prefix "fw-drop "
+  }
+}

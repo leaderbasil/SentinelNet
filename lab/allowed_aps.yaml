@@ -1,0 +1,6 @@
+# خط أساس نقاط الوصول الشرعية — تستخدمه أداة الكشف (config.yaml → evil_twin.allowed_aps_file)
+# سجّل هنا كل AP شرعي في مختبرك/حرمك؛ أي BSSID غير مسجل يعلن نفس SSID → تنبيه Evil Twin
+- ssid: Campus-Students
+  bssid: "66:77:88:99:aa:a1"
+  channel: 6
+  security: WPA2/WPA3 (RSN)

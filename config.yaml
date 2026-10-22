@@ -1,0 +1,34 @@
+# إعدادات NetGuard-IDS — عدّل القيم حسب شبكتك/مختبرك
+
+arp:
+  mac_flood_threshold: 10            # MAC واحد يدّعي أكثر من هذا العدد → تنبيه
+  unsolicited_reply_threshold: 6     # ردود ARP بلا طلب سابق خلال النافذة → تنبيه
+  unsolicited_window_seconds: 10.0
+  whitelist: []                      # روابط شرعية تُثبّت، مثال:
+  # - {ip: 192.168.1.1, mac: aa:bb:cc:dd:ee:ff}
+  # - {ip: 192.168.1.50, mac: aa:bb:cc:00:00:50}
+
+deauth:
+  alert_threshold: 10                # عدد إطارات الفصل خلال النافذة → تنبيه
+  window_seconds: 10.0
+
+evil_twin:
+  allowed_aps_file: lab/allowed_aps.yaml   # خط أساس النقاط الشرعية
+  ignored_ssids: []                  # شبكات Mesh/مكررة معروفة
+  alert_on_privacy_change: true
+  alert_on_unknown_ap: true          # نقطة غير مسجلة في خط الأساس → تنبيه إرشادي
+
+alerts:
+  cooldown_seconds: 15.0             # منع تكرار نفس التنبيه خلال هذه المدة
+
+logging:
+  dir: logs
+  save_alerts_jsonl: true
+  save_evidence_pcap: true
+  evidence_max_packets: 500
+
+# ضوابط السلامة للمختبر (إلزامية) — لا تعدّل إلا وأنت تعلم
+guard:
+  allowed_interfaces: []             # أسماء واجهات المختبر المسموح بها للمولدات
+  lab_traffic_limit: 50              # أقصى عدد حزم لكل تشغيل لمولد الحركة
+  require_isolated_link: true        # أوقف المولدات إن وُجد اتصال إنترنت

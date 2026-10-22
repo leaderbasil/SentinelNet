@@ -1,0 +1,4 @@
+scapy>=2.5.0
+colorama>=0.4.6
+pyyaml>=6.0
+pytest>=8.0

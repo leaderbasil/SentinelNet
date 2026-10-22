@@ -1,0 +1,18 @@
+[
+  {
+    "time": "2026-10-22T17:06:25",
+    "summary": "Ether / ARP is at aa:bb:cc:00:00:66 says 192.168.1.1"
+  },
+  {
+    "time": "2026-10-22T17:06:25",
+    "summary": "Ether / ARP is at aa:bb:cc:00:00:66 says 192.168.1.50"
+  },
+  {
+    "time": "2026-10-22T17:06:25",
+    "summary": "Ether / ARP is at aa:bb:cc:00:00:66 says 192.168.1.108"
+  },
+  {
+    "time": "2026-10-22T17:06:25",
+    "summary": "Ether / IP / TCP 192.168.1.50:51111 > 93.184.216.34:http PA / Raw"
+  }
+]
