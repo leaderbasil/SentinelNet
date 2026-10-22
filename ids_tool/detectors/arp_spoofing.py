@@ -12,6 +12,8 @@ from __future__ import annotations
 import time
 from collections import deque
 
+from ..alerts import GREEN, RESET
+
 KIND_ARP_SPOOF = "ARP_SPOOF"
 KIND_MAC_FLOOD = "MAC_FLOOD"
 KIND_UNSOLICITED = "UNSOLICITED_ARP"
@@ -112,7 +114,7 @@ class ARPSpoofingDetector:
             self.ip_mac[ip] = mac
             if self.show_packets:
                 note = " (gateway/router)" if (self.gateway_ip and ip == self.gateway_ip) else ""
-                print(f"    [ARP] new device on network: {ip} -> {mac}{note}")
+                print(f"    {GREEN}[ARP]{RESET} new device on network: {ip} -> {mac}{note}")
 
         # Rule 2: one MAC claiming many IPs
         claimed = self.mac_ips.setdefault(mac, set())

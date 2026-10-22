@@ -14,6 +14,8 @@ from collections import deque
 
 from scapy.all import Dot11
 
+from ..alerts import RESET, YELLOW
+
 KIND_DEAUTH_FLOOD = "DEAUTH_FLOOD"
 
 
@@ -66,8 +68,8 @@ class DeauthDetector:
         count = len(bucket)
         if self.show_packets:
             tgt_txt = "ALL devices (broadcast)" if broadcast_target else target
-            print(f"    [WLAN] {label} frame #{count} in {self.window:.0f}s "
-                  f"from {src} -> {tgt_txt}")
+            print(f"    {YELLOW}[WLAN]{RESET} {label} frame #{count} in {self.window:.0f}s "
+                  f"from {src} → {tgt_txt}")
 
         if count >= self.threshold:
             n_broadcast = sum(1 for h in bucket if h[2])

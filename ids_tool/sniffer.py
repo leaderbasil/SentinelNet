@@ -16,6 +16,7 @@ from scapy.all import Dot11, ARP, sniff
 from scapy.layers.inet import TCP
 
 from .alerts import AlertManager, BOLD, CYAN, GREEN, GREY, RESET, YELLOW
+
 from .config import PROJECT_ROOT, load_config
 from .detectors.arp_spoofing import ARPSpoofingDetector
 from .detectors.deauth import DeauthDetector
@@ -186,22 +187,22 @@ class PacketMonitor:
         pcap = self.evidence.save() if self.evidence else None
         manifest = self._save_manifest(pcap)
         print("\n" + "=" * 60)
-        print(f"{BOLD}Session summary{RESET}")
+        print(f"{BOLD}📋 Session summary{RESET}")
         print("=" * 60)
-        print(f" packets inspected : {self.total}")
-        print(f" analysis errors   : {self.errors}")
-        print(f" total alerts      : {self.alerts.total_alerts}")
+        print(f" packets inspected : {BOLD}{self.total}{RESET}")
+        print(f" analysis errors   : {BOLD}{self.errors}{RESET}")
+        print(f" total alerts      : {BOLD}{YELLOW}{self.alerts.total_alerts}{RESET}")
         for kind, count in sorted(self.alerts.kinds.items()):
-            print(f"    - {kind:22}: {count}")
+            print(f"    {YELLOW}• {kind:22} {BOLD}{count}{RESET}")
         if self.alert_log:
-            print(f" alerts log (JSONL): {self.alert_log}")
+            print(f" {GREEN}alerts log (JSONL){RESET}   : {self.alert_log}")
         if pcap:
-            print(f" evidence (PCAP)   : {pcap}")
-            print("   open it in Wireshark to study the suspicious packets.")
+            print(f" {GREEN}evidence (PCAP){RESET}     : {pcap}")
+            print(f"   open it in Wireshark to inspect the suspicious packets.")
         if manifest:
-            print(f" evidence manifest : {manifest}  (verify: python tools/verify.py)")
+            print(f" {GREEN}evidence manifest{RESET}   : {manifest}   (verify with: python tools/verify.py)")
         if not pcap and not self.alert_log:
-            print(" nothing suspicious recorded.")
+            print(f" {GREY}nothing suspicious recorded.{RESET}")
 
     def _save_manifest(self, pcap):
         """SHA-256 manifest for the session evidence files."""

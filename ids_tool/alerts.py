@@ -21,10 +21,12 @@ RED = "\033[91m"
 YELLOW = "\033[93m"
 GREEN = "\033[92m"
 CYAN = "\033[96m"
+MAGENTA = "\033[95m"
 GREY = "\033[90m"
 BOLD = "\033[1m"
 
 SEVERITY_COLORS = {"high": RED, "medium": YELLOW, "info": CYAN}
+SEVERITY_BADGES = {"high": "🔴", "medium": "🟠", "info": "🔵"}
 
 
 class AlertManager:
@@ -65,9 +67,10 @@ class AlertManager:
         }
 
         color = SEVERITY_COLORS.get(severity, GREY)
-        print(f"{color}{BOLD}[ALERT-{severity}]{RESET} {color}WARNING: {title}{repeat_note}{RESET}")
+        badge = SEVERITY_BADGES.get(severity, "⚪")
+        print(f"{color}{BOLD}[{badge} {severity.upper()}]{RESET} {color}⚠ WARNING: {title}{repeat_note}{RESET}")
         for k, v in (details or {}).items():
-            print(f"      -> {k}: {v}")
+            print(f"      {GREY}│ {k}: {v}{RESET}")
 
         if self.log_file is not None:
             try:

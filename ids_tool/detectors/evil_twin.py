@@ -16,6 +16,7 @@ from pathlib import Path
 
 from scapy.all import Dot11, Dot11Beacon, Dot11Elt, Dot11ProbeResp
 
+from ..alerts import CYAN, RESET
 from ..config import PROJECT_ROOT
 
 KIND_EVIL_TWIN = "EVIL_TWIN"
@@ -155,7 +156,7 @@ class EvilTwinDetector:
 
             if known_ap:
                 if self.show_packets:
-                    print(f"    [WLAN] legitimate AP seen: {ssid} (BSSID {bssid}, {label})")
+                    print(f"    {CYAN}[WLAN]{RESET} legitimate AP seen: {ssid} (BSSID {bssid}, {label})")
                 return
 
             if self.allowed and ssid.lower() in self.allowed_ssids:
@@ -195,7 +196,7 @@ class EvilTwinDetector:
                     dedupe_key=f"{ssid}|{bssid}",
                 )
             elif self.show_packets:
-                print(f"    [WLAN] new AP seen: {ssid} (BSSID {bssid}, {label})")
+                print(f"    {CYAN}[WLAN]{RESET} new AP seen: {ssid} (BSSID {bssid}, {label})")
             return
 
         # known AP: update counters and check for changes

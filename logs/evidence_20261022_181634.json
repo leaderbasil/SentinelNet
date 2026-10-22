@@ -1,0 +1,14 @@
+[
+  {
+    "time": "2026-10-22T18:16:34",
+    "summary": "RadioTap / 802.11 Management Beacon 66:77:88:99:aa:a1 (TA=SA) > ff:ff:ff:ff:ff:ff (RA=DA) / Dot11Beacon / SSID='Campus-Students-5G' / Dot11EltDSSSet"
+  },
+  {
+    "time": "2026-10-22T18:16:34",
+    "summary": "RadioTap / 802.11 Management Beacon 66:77:88:99:aa:b2 (TA=SA) > ff:ff:ff:ff:ff:ff (RA=DA) / Dot11Beacon / SSID='Campus-Students-5G' / Dot11EltDSSSet"
+  },
+  {
+    "time": "2026-10-22T18:16:34",
+    "summary": "RadioTap / 802.11 Management Deauthentication 66:77:88:99:aa:a1 (TA=SA) > 11:22:33:44:55:01 (RA=DA) / Dot11Deauth"
+  }
+]
